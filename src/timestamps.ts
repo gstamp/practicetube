@@ -4,12 +4,16 @@ export class Time {
     mode: SectionType
     start: number
     end: number
+    subtitleStart: number | null
+    subtitleEnd: number | null
     japanese: string | null
 
-    constructor(mode: SectionType, start: number, end: number, japanese: string | null) {
+    constructor(mode: SectionType, start: number, end: number, subtitleStart: number | null, subtitleEnd: number | null, japanese: string | null) {
         this.mode = mode
         this.start = start
         this.end = end
+        this.subtitleStart = subtitleStart
+        this.subtitleEnd = subtitleEnd
         this.japanese = japanese
     }
 }
@@ -17,13 +21,13 @@ export class Time {
 export class Timestamps {
     timestamps: Array<Time>
 
-    constructor(times: Array<number | [number, string]>) {
+    constructor(times: Array<[number, number | null, number | null, string | null]>) {
         this.timestamps = []
         let mode: SectionType = "watch"
 
-        for (let i = 0; i < times.length; i++) {
-            let endTime = i + 1 < times.length ? this.timeFor(times[i + 1]) : 9999
-            this.timestamps.push(new Time(mode, this.timeFor(times[i]), endTime, this.textFor(times[i])))
+        for (let section = 0; section < times.length; section++) {
+            let endTime = section + 1 < times.length ? times[section + 1][0] : 9999
+            this.timestamps.push(new Time(mode, times[section][0], endTime, times[section][1], times[section][2], times[section][3]))
             mode = mode == "watch" ? "review" : "watch"
         }
     }

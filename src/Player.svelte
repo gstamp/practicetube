@@ -4,7 +4,6 @@
     import type { Timestamps, SectionType } from "./timestamps"
     import HelpPopup from "./HelpPopup.svelte"
 
-    export let subtitles: Array<[number, number, string]>
     export let timestamps: Timestamps
     export let debug: boolean = false
 
@@ -24,7 +23,7 @@
 
     function playSentence() {
         section = Math.floor(section / 2) * 2
-        player.seekTo(sentenceTimeForSection())
+        player.seekTo(timestamps.time(section).subtitleStart)
         player.play()
     }
 
@@ -88,20 +87,8 @@
         player.play()
     }
 
-    function sentenceTimeForSection() {
-        let effectiveSection = Math.floor(section / 2) * 2
-
-        let result = subtitles.find(
-            ([from, _to, _sentence]) =>
-                from >= timestamps.time(effectiveSection).start && from <= timestamps.time(effectiveSection).end
-        )
-
-        if (result) return result[0]
-        else return null
-    }
-
     $: {
-        let sentenceTime = sentenceTimeForSection()
+        let sentenceTime = timestamps.time(section).start
         playSentenceDisabled =
             (playerState != "(paused)" && playerState != "(playing)" && playerState != "(unstarted)") ||
             (playerState == "(playing)" && sentenceTime == null)
@@ -142,6 +129,14 @@
         text-transform: uppercase;
         font-size: 4em;
         font-weight: 100;
+        margin: 0;
+    }
+
+    header > h2 {
+        color: #ff3e00;
+        text-transform: uppercase;
+        font-size: 2em;
+        font-weight: 50;
         margin: 0;
     }
 
@@ -208,17 +203,16 @@
         flex: 1;
     }
 
+    .player-controls > button:last-child {
+        margin-left: 2em;
+    }
+
     .review-controls {
         margin-right: 2em;
     }
 
     #playButton {
         width: 9em;
-    }
-
-    .help {
-        float: right;
-        color: white;
     }
 
     @media (min-width: 640px) {
@@ -230,8 +224,8 @@
 
 <div class="container">
     <header>
-        <h1>Japanese Practice</h1>
-        <div class="help"><button on:click={showHelp}>Instructions</button></div>
+        <h1>Japanese Immersion</h1>
+        <h2>With Game Gengo</h2>
         <p>
             Let's
             {currentSectionType}!
@@ -266,6 +260,7 @@
                         <li><button class="blue button" on:click={previous}>Previous</button></li>
                         <li><button class="blue button" on:click={next}>Next</button></li>
                     </ul>
+                    <button class="button" on:click={showHelp}>Instructions</button>
                 </div>
                 <div class="review-controls">
                     <label> <input type="checkbox" bind:checked={watchOnly} /> Skip explanations </label>
