@@ -1,5 +1,4 @@
 <script lang="ts">
-    import type { SectionType } from "./timestamps"
     import { Timestamps } from "./timestamps"
     import Modal from "./Model.svelte"
     import Player from "./Player.svelte"
